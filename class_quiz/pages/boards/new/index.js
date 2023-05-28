@@ -1,9 +1,7 @@
-import { useState } from "react";
 import {
   Address,
   ButtonWrapper,
   Contents,
-  Error,
   ImageWrapper,
   InputWrapper,
   Label,
@@ -22,39 +20,23 @@ import {
   Youtube,
   Zipcode,
   ZipcodeWrapper,
-} from "../../../styles/emotion";
+  Error,
+} from "../../../styles/boardsNew";
+import { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
+import { useRouter } from "next/router";
 
 const CREATE_BOARD = gql`
-  # 우선은 제목, 내용, 비밀번호, 작성자 네 개의 데이터가 필수적으로 전송되도록 구현해주세요.
-  # mutation createBoard(
-  #   $title: String
-  #   $password: String
-  #   $contents: Stirng
-  #   $writer: String
-  # ) {
-  #   createBoard(
-  #     title: $title
-  #     password: $password
-  #     contents: $contents
-  #     writer: $writer
-  #   ) {
-  #     contents
-  #     writer
-  #     title
-  #   }
-  # }
-  mutation createBoard(
-    $createBoardInput: CreateBoardInput! #타입 적는 곳
-  ) {
+  mutation createBoard($createBoardInput: CreateBoardInput!) {
     createBoard(createBoardInput: $createBoardInput) {
-      #실제 전달할 변수 적는 곳
       _id
     }
   }
 `;
 
-export default function BoardWriteUI() {
+export default function BoardsNewPage() {
+  const router = useRouter();
+
   const [writer, setWriter] = useState("");
   const [password, setPassword] = useState("");
   const [title, setTitle] = useState("");
@@ -96,15 +78,6 @@ export default function BoardWriteUI() {
   };
 
   const onClickSubmit = async () => {
-    // const result = await createBoard({
-    //   variabels: {
-    //     title: title,
-    //     writer: writer,
-    //     contents: contents,
-    //     password: password,
-    //   },
-    // });
-
     if (!writer) {
       setWriterError("작성자를 입력해주세요.");
     }
@@ -118,17 +91,22 @@ export default function BoardWriteUI() {
       setContentsError("내용을 입력해주세요.");
     }
     if (writer && password && title && contents) {
-      const result = await createBoard({
-        variables: {
-          createBoardInput: {
-            writer: writer,
-            password: password,
-            title: title,
-            contents: contents,
+      try {
+        const result = await createBoard({
+          variables: {
+            createBoardInput: {
+              writer,
+              password,
+              title,
+              contents,
+            },
           },
-        },
-      });
-      console.log(result);
+        });
+        console.log(result.data.createBoard._id);
+        router.push(`/boards/${result.data.createBoard._id}`);
+      } catch (error) {
+        alert(error.message);
+      }
     }
   };
 
