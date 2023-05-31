@@ -2,16 +2,9 @@ import { useState } from "react";
 import { gql, useMutation } from "@apollo/client";
 import { useRouter } from "next/router";
 import BoardWriteUI from "./BoardWrite.presenter";
+import { CREATE_BOARD } from "./BoardWrite.queries";
 
 export default function BoardWrite() {
-  const CREATE_BOARD = gql`
-    mutation createBoard($createBoardInput: CreateBoardInput!) {
-      createBoard(createBoardInput: $createBoardInput) {
-        _id
-      }
-    }
-  `;
-
   const router = useRouter();
 
   const [writer, setWriter] = useState("");
